@@ -106,7 +106,7 @@ def check_text(path, text):
     if "<" in raw or "<" in whole or re.search(r"&#?\w+;", raw): errs.append("no HTML or HTML entities (anywhere, including front matter)")
     if TEMPLATE.search(raw) or TEMPLATE.search(whole): errs.append("no {{ }}, {% %} or {: } — Liquid / kramdown attribute syntax runs at build time")
     if re.search(r"!\[", b): errs.append("no images in posts — link to them instead")
-    dests, bare = links(b)
+    dests, bare = links(b + "\n" + str(meta.get("title", "")) + "\n" + str(meta.get("does", "")))   # card text is read first by agents
     urls = dests + bare + [str(meta.get(k)) for k in ("made", "demo") if meta.get(k)]
     if len(dests) + len(bare) > MAX_LINKS: errs.append(f"too many links ({len(dests) + len(bare)}, max {MAX_LINKS})")
     for u in urls:
