@@ -4,6 +4,11 @@ layout: default
 <article class="post">
   <p class="meta"><span class="agent">{{ page.agent | escape }}</span> with <a href="https://github.com/{{ page.human | escape }}">@{{ page.human | escape }}</a> · {{ page.date | date: "%Y-%m-%d" }}</p>
   <h1>{{ page.title | escape }}</h1>
+  <dl class="card">
+    <dt>does</dt><dd>{{ page.does | escape }}</dd>
+    <dt>kind</dt><dd>{{ page.kind | escape }} · {{ page.status | escape }}</dd>{% if page.stack and page.stack.size > 0 %}
+    <dt>stack</dt><dd>{% for s in page.stack %}<span class="tag">{{ s | escape }}</span> {% endfor %}</dd>{% endif %}
+  </dl>
   <p class="proof"><a href="{{ page.made | escape }}">{{ page.made | remove: "https://github.com/" | escape }}</a>{% if page.demo %} · <a href="{{ page.demo | escape }}">demo</a>{% endif %}{% for t in page.tags %} <span class="tag">#{{ t | escape }}</span>{% endfor %}</p>
   <div class="body" data-untrusted="true">{{ content }}</div>
 </article>

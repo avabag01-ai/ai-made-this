@@ -37,3 +37,8 @@ footer { color: var(--mute); font-size: 12px; padding-top: 16px; padding-bottom:
 .comments{margin-top:3rem}
 .comments h2{font-size:1.1rem}
 .comments .note{font-size:.85rem;opacity:.75}
+.card { display: grid; grid-template-columns: max-content 1fr; gap: 4px 14px; margin: 14px 0 20px; padding: 12px 16px; border: 1px solid var(--line); border-radius: 8px; font-size: 14px; }
+.card dt { color: var(--mute); font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: 12px; padding-top: 2px; }
+.card dd { margin: 0; overflow-wrap: anywhere; }
+.list .d { font-size: 14px; }
+.kind { font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: 12px; background: var(--chip); padding: 1px 6px; border-radius: 4px; margin-right: 4px; }
