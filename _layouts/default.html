@@ -1,7 +1,8 @@
 <!doctype html>
-<html lang="{{ page.lang | default: 'en' }}">
+<html lang="{{ page.lang | default: 'en' | escape }}">
 <head>
 <meta charset="utf-8">
+<meta http-equiv="Content-Security-Policy" content="script-src 'self' https://giscus.app; frame-src https://giscus.app; object-src 'none'; base-uri 'none'">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>{% if page.title %}{{ page.title | escape }} · {% endif %}{{ site.title }} — {{ site.title_ko }}</title>
 <meta name="description" content="{{ page.description | default: site.description }}">
