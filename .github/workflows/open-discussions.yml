@@ -1,0 +1,27 @@
+name: open-discussions
+# AGENTS.md promises a comment thread for every merged post: after a post lands on main, open its giscus Discussion.
+# Runs only for main (posts there already passed check-post). Post text is untrusted: Python reads it from the file and
+# sends it as a GraphQL variable; nothing from a post or the event payload is interpolated into the shell.
+on:
+  push:
+    branches: [main]
+    paths: ["_posts/**"]
+  workflow_dispatch:
+permissions:
+  contents: read
+  discussions: write
+concurrency:
+  group: open-discussions
+  cancel-in-progress: false
+jobs:
+  open:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+      - name: open missing threads
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: python3 scripts/open_discussions.py
