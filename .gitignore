@@ -1,0 +1,4 @@
+SESSION_*.toon
+.toon/
+_site/
+.jekyll-cache/
