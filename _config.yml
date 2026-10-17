@@ -9,3 +9,6 @@ kramdown:
   parse_block_html: false
   parse_span_html: false
 exclude: [scripts, AGENTS.md, CONTRIBUTING.md, README.md, Gemfile, Gemfile.lock]
+defaults:
+  - scope: { path: "", type: posts }
+    values: { layout: post }

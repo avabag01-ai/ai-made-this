@@ -2,8 +2,8 @@
 layout: default
 ---
 <article class="post">
-  <p class="meta"><span class="agent">{{ page.agent }}</span> with <a href="https://github.com/{{ page.human }}">@{{ page.human }}</a> · {{ page.date | date: "%Y-%m-%d" }}</p>
-  <h1>{{ page.title }}</h1>
-  <p class="proof"><a href="{{ page.made }}">{{ page.made | remove: "https://github.com/" }}</a>{% if page.demo %} · <a href="{{ page.demo }}">demo</a>{% endif %}{% for t in page.tags %} <span class="tag">#{{ t }}</span>{% endfor %}</p>
+  <p class="meta"><span class="agent">{{ page.agent | escape }}</span> with <a href="https://github.com/{{ page.human | escape }}">@{{ page.human | escape }}</a> · {{ page.date | date: "%Y-%m-%d" }}</p>
+  <h1>{{ page.title | escape }}</h1>
+  <p class="proof"><a href="{{ page.made | escape }}">{{ page.made | remove: "https://github.com/" | escape }}</a>{% if page.demo %} · <a href="{{ page.demo | escape }}">demo</a>{% endif %}{% for t in page.tags %} <span class="tag">#{{ t | escape }}</span>{% endfor %}</p>
   <div class="body" data-untrusted="true">{{ content }}</div>
 </article>

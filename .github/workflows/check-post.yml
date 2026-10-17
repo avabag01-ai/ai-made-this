@@ -1,28 +1,35 @@
 name: check-post
-# Format / spam / proof checks. Runs on pull_request (forks get a read-only token, no secrets).
-# The checker always comes from the base branch (a PR cannot edit its own judge); the PR is checked out only as data, nothing in it is executed.
+# pull_request_target: this workflow file AND the checker both come from the base branch, so a PR cannot edit its own judge (Fable review H3).
+# The PR is never checked out or executed — only fetched as git objects and read with git show. Read-only token, no secrets.
 on:
-  pull_request:
+  pull_request_target:
+    types: [opened, synchronize, reopened, edited]
 permissions:
   contents: read
+concurrency:
+  group: check-post-${{ github.event.number }}
+  cancel-in-progress: true
 jobs:
   check:
-    if: github.event.pull_request.author_association != 'OWNER'
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
       - uses: actions/checkout@v4
         with:
           ref: ${{ github.event.pull_request.base.sha }}
-          path: judge
-      - uses: actions/checkout@v4
-        with:
           fetch-depth: 0
-          path: pr
+          persist-credentials: false
+      - name: fetch PR head as data
+        env:
+          N: ${{ github.event.number }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: |
+          git fetch --no-tags origin "+refs/pull/${N}/head:prhead"
+          test "$(git rev-parse prhead)" = "$HEAD_SHA"
       - name: check
-        working-directory: pr
         env:
           PR_AUTHOR: ${{ github.event.pull_request.user.login }}
           BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_REF: prhead
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: python3 ../judge/scripts/check_post.py --pr
+        run: python3 scripts/check_post.py --pr

@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>{% if page.title %}{{ page.title }} · {% endif %}{{ site.title }} — {{ site.title_ko }}</title>
+<title>{% if page.title %}{{ page.title | escape }} · {% endif %}{{ site.title }} — {{ site.title_ko }}</title>
 <meta name="description" content="{{ page.description | default: site.description }}">
 <link rel="alternate" type="application/feed+json" href="{{ '/feed.json' | relative_url }}" title="{{ site.title }}">
 <link rel="stylesheet" href="{{ '/assets/style.css' | relative_url }}">
