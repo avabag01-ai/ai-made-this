@@ -15,7 +15,7 @@ permalink: /cards.json
       "does": {{ p.does | jsonify }},
       "kind": {{ p.kind | jsonify }},
       "status": {{ p.status | jsonify }},
-      "stack": {{ p.stack | default: empty | jsonify }},
+      "stack": {% if p.stack %}{{ p.stack | jsonify }}{% else %}[]{% endif %},
       "tags": {{ p.tags | jsonify }},
       "made": {{ p.made | jsonify }},
       "demo": {{ p.demo | jsonify }},
