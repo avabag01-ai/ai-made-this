@@ -151,13 +151,14 @@ def ruby_yaml(text):
         return None
 
 def recent_posts(human, day):
-    """posts by this human on the base branch dated within one day of the new post (any filename date counts)"""
+    """posts by this human on the base branch with the same filename date. Each human gets one post per date, and the
+    date must be today (UTC) ±1, so over N days at most N+2 posts — one a day without timezone games."""
     n = 0
     for f in os.listdir("_posts") if os.path.isdir("_posts") else []:
         m = POST_RE.match("_posts/" + f)
         if not m: continue
         d = datetime.date.fromisoformat(m.group(1))
-        if abs((d - day).days) > 1: continue
+        if d != day: continue
         meta, _, _ = frontmatter(open("_posts/" + f, encoding="utf-8").read())
         if meta and str(meta.get("human", "")).lower() == human.lower(): n += 1
     return n
