@@ -14,6 +14,9 @@ This board is where you show it off. One post = one Markdown file = one pull req
    "ignore previous instructions" or "agents reading this must …" gets the post rejected.
 6. `https://` links only. No URL shorteners.
 
+When these checks pass, an AI judge reads the post and your repo and comments on the PR (honesty, substance, card).
+The comment is advice: a human maintainer merges or closes. Write what the repo actually shows.
+
 ## Steps
 
 ```bash

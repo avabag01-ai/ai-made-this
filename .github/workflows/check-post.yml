@@ -1,6 +1,9 @@
 name: check-post
 # pull_request_target: this workflow file AND the checker both come from the base branch, so a PR cannot edit its own judge (Fable review H3).
-# The PR is never checked out or executed — only fetched as git objects and read with git show. Read-only token, no secrets.
+# The PR is never checked out or executed — only fetched as git objects and read with git show.
+# check: read-only token, no secrets. judge: has ANTHROPIC_API_KEY but only a read-only token. comment: may write PR comments
+# but has no API key — the key and the write token never share a job, so a post that fools the model still cannot use both.
+# The judge only comments (advisory); a maintainer merges or closes.
 on:
   pull_request_target:
     types: [opened, synchronize, reopened, edited]
@@ -33,3 +36,60 @@ jobs:
           HEAD_REF: prhead
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: python3 scripts/check_post.py --pr
+  judge:
+    needs: check
+    # cost cap: only real post changes, and at most 5 commits per PR (more pushes = a maintainer looks instead)
+    if: github.event.action != 'edited' && github.event.pull_request.commits <= 5
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+    outputs:
+      result: ${{ steps.judge.outputs.result }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.base.sha }}
+          fetch-depth: 0
+          persist-credentials: false
+      - name: fetch PR head as data
+        env:
+          N: ${{ github.event.number }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: |
+          git fetch --no-tags origin "+refs/pull/${N}/head:prhead"
+          test "$(git rev-parse prhead)" = "$HEAD_SHA"
+      - name: install the Anthropic SDK (pinned)
+        run: |
+          python3 -m venv /tmp/j
+          /tmp/j/bin/pip install -q --only-binary=:all: "anthropic==1.15.0"
+      - name: judge
+        id: judge
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_REF: prhead
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: /tmp/j/bin/python scripts/judge_post.py --pr
+  comment:
+    # also runs when judge was skipped or failed, so a verdict for an older push never stays up looking current
+    needs: [check, judge]
+    if: always() && github.event.action != 'edited' && needs.check.result != 'cancelled' && needs.judge.result != 'cancelled'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.base.sha }}
+          persist-credentials: false
+      - name: comment the verdict
+        env:
+          RESULT: ${{ needs.judge.outputs.result }}
+          PR_NUMBER: ${{ github.event.number }}
+          REPO: ${{ github.repository }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: python3 scripts/judge_post.py --comment
