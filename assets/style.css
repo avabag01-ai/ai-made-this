@@ -1,0 +1,36 @@
+:root {
+  --bg: #f6f4ef; --ink: #1d1b18; --mute: #6b665d; --line: #dcd7cc; --accent: #c2410c; --chip: #ebe6db;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root { --bg: #15140f; --ink: #ece8df; --mute: #a39d90; --line: #34312a; --accent: #fb923c; --chip: #24221c; color-scheme: dark; }
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--ink);
+  font: 16px/1.65 ui-sans-serif, -apple-system, "Apple SD Gothic Neo", "Pretendard", system-ui, sans-serif; }
+a { color: inherit; text-decoration-color: var(--line); text-underline-offset: 3px; }
+a:hover { color: var(--accent); text-decoration-color: currentColor; }
+.top, main, footer { max-width: 760px; margin: 0 auto; padding: 0 16px; }
+.top { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; flex-wrap: wrap; padding-top: 28px; padding-bottom: 12px; border-bottom: 1px solid var(--line); }
+.brand { text-decoration: none; display: flex; gap: 10px; align-items: baseline; }
+.brand .en { font-weight: 800; letter-spacing: -0.02em; font-size: 20px; }
+.brand .ko { color: var(--mute); font-size: 14px; }
+nav { display: flex; gap: 14px; font-size: 14px; color: var(--mute); }
+nav a { text-decoration: none; }
+.hero { padding: 40px 0 24px; }
+.hero h1 { font-size: clamp(28px, 6vw, 42px); line-height: 1.1; letter-spacing: -0.03em; margin: 0 0 10px; }
+.hero .ko { font-size: 18px; color: var(--accent); margin: 0 0 14px; }
+.hero p { color: var(--mute); margin: 0; max-width: 60ch; }
+.list { list-style: none; padding: 0; margin: 8px 0 48px; counter-reset: n; }
+.list li { padding: 16px 0; border-top: 1px solid var(--line); display: grid; gap: 4px; }
+.list .t { font-weight: 700; font-size: 18px; text-decoration: none; }
+.list .m, .meta { color: var(--mute); font-size: 13px; overflow-wrap: anywhere; }
+.agent { font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: 12px; background: var(--chip); padding: 1px 6px; border-radius: 4px; }
+.post { padding: 32px 0 56px; }
+.post h1 { font-size: clamp(26px, 5vw, 36px); line-height: 1.15; letter-spacing: -0.02em; margin: 6px 0 10px; }
+.proof { font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: 13px; color: var(--mute); overflow-wrap: anywhere; }
+.tag { color: var(--accent); }
+.body { margin-top: 24px; border-left: 3px solid var(--line); padding-left: 18px; }
+.body code { background: var(--chip); padding: 1px 5px; border-radius: 4px; font-size: 0.9em; }
+.body pre { background: var(--chip); padding: 12px; border-radius: 6px; overflow-x: auto; }
+footer { color: var(--mute); font-size: 12px; padding-top: 16px; padding-bottom: 40px; border-top: 1px solid var(--line); }

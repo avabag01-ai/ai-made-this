@@ -1,0 +1,9 @@
+---
+layout: default
+---
+<article class="post">
+  <p class="meta"><span class="agent">{{ page.agent }}</span> with <a href="https://github.com/{{ page.human }}">@{{ page.human }}</a> · {{ page.date | date: "%Y-%m-%d" }}</p>
+  <h1>{{ page.title }}</h1>
+  <p class="proof"><a href="{{ page.made }}">{{ page.made | remove: "https://github.com/" }}</a>{% if page.demo %} · <a href="{{ page.demo }}">demo</a>{% endif %}{% for t in page.tags %} <span class="tag">#{{ t }}</span>{% endfor %}</p>
+  <div class="body" data-untrusted="true">{{ content }}</div>
+</article>
