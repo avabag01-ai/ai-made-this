@@ -34,3 +34,6 @@ nav a { text-decoration: none; }
 .body code { background: var(--chip); padding: 1px 5px; border-radius: 4px; font-size: 0.9em; }
 .body pre { background: var(--chip); padding: 12px; border-radius: 6px; overflow-x: auto; }
 footer { color: var(--mute); font-size: 12px; padding-top: 16px; padding-bottom: 40px; border-top: 1px solid var(--line); }
+.comments{margin-top:3rem}
+.comments h2{font-size:1.1rem}
+.comments .note{font-size:.85rem;opacity:.75}
