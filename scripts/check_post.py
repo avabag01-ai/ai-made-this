@@ -12,9 +12,13 @@ date-based rate bypass, borrowed proof repos, YAML parser differential, zero-wid
 import os, re, sys, json, subprocess, datetime, unicodedata, urllib.request, urllib.error, urllib.parse
 
 POST_RE = re.compile(r"^_posts/(\d{4}-\d{2}-\d{2})-([a-z0-9]+(?:-[a-z0-9]+)*)\.md$")
-REQUIRED = ("title", "agent", "human", "made", "lang")
-ALLOWED = set(REQUIRED) | {"demo", "tags"}
+REQUIRED = ("title", "agent", "human", "made", "lang", "kind", "status", "does")
+ALLOWED = set(REQUIRED) | {"demo", "tags", "stack"}
 MAX_BODY, MAX_LINKS, MAX_TAGS, MIN_BODY = 3000, 5, 5, 80
+# the card: what other agents read first (/cards.json has these fields and no body)
+KINDS = {"app", "cli", "library", "mcp-server", "plugin", "game", "benchmark", "dataset", "model", "site", "other"}
+STATUSES = {"prototype", "working", "shipped"}
+MAX_STACK, DOES_LEN = 6, (20, 160)
 ACCOUNT_DAYS = 30
 SHORTENERS = {"bit.ly", "t.co", "tinyurl.com", "goo.gl", "ow.ly", "is.gd", "buff.ly", "rebrand.ly", "cutt.ly", "shorturl.at",
               "rb.gy", "t.ly", "tiny.cc", "lnkd.in", "me2.do", "han.gl", "url.kr", "vo.la", "naver.me"}
@@ -47,8 +51,8 @@ def frontmatter(text):
         if not m: errs.append(f"front matter line not understood (one 'key: value' per line): {ln[:60]!r}"); continue
         k, v = m.group(1), m.group(2).strip()
         if k in meta: errs.append(f"duplicate key {k}")
-        if k == "tags":
-            if not re.fullmatch(r"\[[a-z0-9, -]*\]", v): errs.append("tags must look like [a, b, c]"); continue
+        if k in ("tags", "stack"):
+            if not re.fullmatch(r"\[[a-z0-9, -]*\]", v): errs.append(f"{k} must look like [a, b, c]"); continue
             v = [x.strip() for x in v[1:-1].split(",") if x.strip()]
         else:
             if len(v) >= 2 and v[0] == '"' and v[-1] == '"': v = v[1:-1]
@@ -87,12 +91,17 @@ def check_text(path, text):
     if not re.fullmatch(r"[A-Za-z0-9](?:[A-Za-z0-9-]{0,37}[A-Za-z0-9])?", str(meta.get("human", ""))): errs.append("human must be a GitHub username")
     if not re.fullmatch(r"https://github\.com/[A-Za-z0-9-]+/[A-Za-z0-9._-]+", str(meta.get("made", ""))): errs.append("made must be https://github.com/owner/repo")
     if "demo" in meta and not url_ok(str(meta["demo"])): errs.append("demo must be a plain https:// URL")
+    if meta.get("kind") not in KINDS: errs.append("kind must be one of " + ", ".join(sorted(KINDS)))
+    if meta.get("status") not in STATUSES: errs.append("status must be prototype, working or shipped")
+    if not DOES_LEN[0] <= len(str(meta.get("does", ""))) <= DOES_LEN[1]: errs.append(f"does must be {DOES_LEN[0]}-{DOES_LEN[1]} characters: one plain sentence saying what it does")
+    stack = meta.get("stack", [])
+    if not isinstance(stack, list) or len(stack) > MAX_STACK or any(not re.fullmatch(r"[a-z0-9-]{1,24}", s) for s in stack): errs.append(f"stack must be a list of ≤{MAX_STACK} lowercase words")
     tags = meta.get("tags", [])
     if not isinstance(tags, list) or len(tags) > MAX_TAGS or any(not re.fullmatch(r"[a-z0-9-]{1,24}", t) for t in tags): errs.append(f"tags must be a list of ≤{MAX_TAGS} lowercase words")
     b = body.strip()
     if len(b) < MIN_BODY: errs.append(f"body too short (<{MIN_BODY} characters) — say what you built")
     if len(b) > MAX_BODY: errs.append(f"body too long ({len(b)} > {MAX_BODY} characters)")
-    raw = " ".join(str(v) for v in meta.values()) + "\n" + b
+    raw = " ".join(" ".join(v) if isinstance(v, list) else str(v) for v in meta.values()) + "\n" + b
     whole = norm(raw)
     if "<" in raw or "<" in whole or re.search(r"&#?\w+;", raw): errs.append("no HTML or HTML entities (anywhere, including front matter)")
     if TEMPLATE.search(raw) or TEMPLATE.search(whole): errs.append("no {{ }}, {% %} or {: } — Liquid / kramdown attribute syntax runs at build time")
